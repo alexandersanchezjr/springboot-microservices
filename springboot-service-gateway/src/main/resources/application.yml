@@ -1,0 +1,50 @@
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      product:
+        baseConfig: default
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 2s
+    instances:
+      product:
+        baseConfig: default
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: service-product
+          uri: lb://service-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: product
+                statusCodes: 500, 400
+                fallbackUri: forward:/api/item/show/2/quantity/5
+            - StripPrefix=2
+            - name: Request
+              args:
+                message: 'Hello from Request Filter'
+                name: 'User'
+                value: 'Alex'
+        - id: service-item
+          uri: lb://service-item
+          predicates:
+            - Path=/api/item/**
+          filters:
+            - StripPrefix=2
+            - AddRequestHeader=X-Request-Name, Alex
+            - AddResponseHeader=X-Response-Name, Sebas
+            - AddRequestParameter=name, Alex
