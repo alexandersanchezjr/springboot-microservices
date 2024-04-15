@@ -1,6 +1,7 @@
-package com.springboot.app.products.models.entity;
+package com.springboot.app.commons.model.entity;
 
 import jakarta.persistence.*;
+
 import java.util.Date;
 
 @Entity
