@@ -48,3 +48,9 @@ spring:
             - AddRequestHeader=X-Request-Name, Alex
             - AddResponseHeader=X-Response-Name, Sebas
             - AddRequestParameter=name, Alex
+        - id: service-user
+          uri: lb://service-user
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=2
